@@ -7,15 +7,15 @@ app.use(cors());
 app.use(express.json());
 
 app.post("/api/reddit", async (req, res) => {
-  const { query, subreddit } = req.body;
+  const { subreddit } = req.body;
 
-  if (!query || !subreddit) {
-    return res.status(400).json({ error: "Faltan parámetros: query o subreddit" });
+  if (!subreddit) {
+    return res.status(400).json({ error: "Falta el parámetro: subreddit" });
   }
 
   try {
     const response = await fetch(
-      `https://www.reddit.com/r/${subreddit}/search.json?q=${encodeURIComponent(query)}&sort=top&limit=5`,
+      `https://www.reddit.com/r/${subreddit}/top.json?limit=5`,
       {
         headers: {
           "User-Agent": "ChatGPTMonetizadorBot/1.0"
@@ -30,7 +30,7 @@ app.post("/api/reddit", async (req, res) => {
       url: `https://reddit.com${post.data.permalink}`
     }));
 
-    res.json({ query, subreddit, resultados });
+    res.json({ subreddit, resultados });
   } catch (error) {
     console.error("❌ Error al buscar en Reddit:", error);
     res.status(500).json({ error: "No se pudo obtener resultados desde Reddit" });
