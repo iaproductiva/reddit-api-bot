@@ -14,7 +14,14 @@ app.post("/api/reddit", async (req, res) => {
   }
 
   try {
-    const response = await fetch(`https://www.reddit.com/r/${subreddit}/search.json?q=${encodeURIComponent(query)}&sort=top&limit=5`);
+    const response = await fetch(
+      `https://www.reddit.com/r/${subreddit}/search.json?q=${encodeURIComponent(query)}&sort=top&limit=5`,
+      {
+        headers: {
+          "User-Agent": "ChatGPTMonetizadorBot/1.0"
+        }
+      }
+    );
     const data = await response.json();
 
     const resultados = data.data.children.map((post) => ({
