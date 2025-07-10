@@ -15,20 +15,20 @@ app.post("/api/reddit", async (req, res) => {
 
   try {
     const response = await fetch(
-      `https://api.pushshift.io/reddit/search/submission/?subreddit=${encodeURIComponent(subreddit)}&sort=desc&sort_type=score&size=5`
+      `https://reddit-search.deno.dev/?type=top&subreddit=${encodeURIComponent(subreddit)}&limit=5`
     );
     const data = await response.json();
 
-    const resultados = (data.data || []).map((post) => ({
+    const resultados = (data.results || []).map((post) => ({
       titulo: post.title,
       votos: post.score,
-      url: post.full_link || `https://reddit.com${post.permalink}`
+      url: post.url
     }));
 
     res.json({ subreddit, resultados });
   } catch (error) {
-    console.error("❌ Error al buscar en Pushshift:", error);
-    res.status(500).json({ error: "No se pudo obtener resultados desde Pushshift" });
+    console.error("❌ Error al buscar en reddit-search.deno.dev:", error);
+    res.status(500).json({ error: "No se pudo obtener resultados desde reddit-search.deno.dev" });
   }
 });
 
