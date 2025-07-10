@@ -1,26 +1,34 @@
-app.post('/api/reddit', async (req, res) => {
+const express = require("express");
+const cors = require("cors");
+const fetch = require("node-fetch");
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+app.post("/api/reddit", async (req, res) => {
   const { query, subreddit } = req.body;
 
   if (!query || !subreddit) {
-    return res.status(400).json({ error: "Faltan 'query' o 'subreddit'" });
+    return res.status(400).json({ error: "Faltan parámetros: query o subreddit" });
   }
 
-  // Simulación de resultados reales
-  const resultadosFake = [
-    {
-      titulo: `Cómo ${query} sin inversión`,
-      autor: "usuario123",
-      url: "https://reddit.com/fake-post1"
-    },
-    {
-      titulo: `Estrategias reales para ${query}`,
-      autor: "negociosoportunos",
-      url: "https://reddit.com/fake-post2"
-    }
-  ];
+  try {
+    const response = await fetch(`https://www.reddit.com/r/${subreddit}/search.json?q=${encodeURIComponent(query)}&sort=top&limit=5`);
+    const data = await response.json();
 
-  res.json({
-    resultados: resultadosFake,
-    resumen: `Se encontraron ${resultadosFake.length} resultados para "${query}" en r/${subreddit}`
-  });
+    const resultados = data.data.children.map((post) => ({
+      titulo: post.data.title,
+      votos: post.data.ups,
+      url: `https://reddit.com${post.data.permalink}`
+    }));
+
+    res.json({ query, subreddit, resultados });
+  } catch (error) {
+    console.error("❌ Error al buscar en Reddit:", error);
+    res.status(500).json({ error: "No se pudo obtener resultados desde Reddit" });
+  }
 });
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 Servidor corriendo en puerto ${PORT}`));
