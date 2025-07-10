@@ -1,24 +1,26 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const app = express(); // <-- ESTA línea define "app"
-const port = process.env.PORT || 3000;
-
-app.use(bodyParser.json());
-
-// Ruta de prueba
-app.get("/", (req, res) => {
-  res.send("¡Servidor IA activo desde Render!");
-});
-
-// ✅ Ruta POST mejorada
-app.post("/api/reddit", (req, res) => {
+app.post('/api/reddit', async (req, res) => {
   const { query, subreddit } = req.body;
 
-  res.json({
-    respuesta: `Consulta recibida: "${query}" en el subreddit "${subreddit}"`
-  });
-});
+  if (!query || !subreddit) {
+    return res.status(400).json({ error: "Faltan 'query' o 'subreddit'" });
+  }
 
-app.listen(port, () => {
-  console.log(`Servidor corriendo en puerto ${port}`);
+  // Simulación de resultados reales
+  const resultadosFake = [
+    {
+      titulo: `Cómo ${query} sin inversión`,
+      autor: "usuario123",
+      url: "https://reddit.com/fake-post1"
+    },
+    {
+      titulo: `Estrategias reales para ${query}`,
+      autor: "negociosoportunos",
+      url: "https://reddit.com/fake-post2"
+    }
+  ];
+
+  res.json({
+    resultados: resultadosFake,
+    resumen: `Se encontraron ${resultadosFake.length} resultados para "${query}" en r/${subreddit}`
+  });
 });
